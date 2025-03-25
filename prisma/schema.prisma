@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../reflection-machine.db"
+}
+
+model Thought {
+  id                String   @id @default(uuid())
+  content          String
+  createdAt        DateTime @default(now())
+  promptId         String
+  personalityType  String
+  isIntermediateStep Boolean @default(false)
+  prompt           Prompt   @relation(fields: [promptId], references: [id])
+
+  @@index([promptId])
+  @@index([personalityType])
+  @@index([createdAt])
+}
+
+model Prompt {
+  id        String    @id @default(uuid())
+  content   String
+  createdAt DateTime  @default(now())
+  thoughts  Thought[]
+
+  @@index([createdAt])
+}
+
+model PersonalitySettings {
+  id            String   @id @default(uuid())
+  name          String
+  joyLevel      Int     @default(50)
+  sadnessLevel  Int     @default(50)
+  angerLevel    Int     @default(50)
+  fearLevel     Int     @default(50)
+  disgustLevel  Int     @default(50)
+  isActive      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([isActive])
+  @@index([createdAt])
+}

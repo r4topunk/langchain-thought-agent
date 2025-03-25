@@ -1,8 +1,8 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { StructuredOutputParser } from "langchain/output_parsers";
+import { ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate } from "@langchain/core/prompts";
 import { z } from "zod";
-import { PromptTemplate } from "@langchain/core/prompts";
 
 export type PersonalityTraits = {
   joy: number;
@@ -22,22 +22,24 @@ const responseSchema = z.object({
 export const createAgentChain = (traits: PersonalityTraits) => {
   const parser = StructuredOutputParser.fromZodSchema(responseSchema);
 
-  const prompt = PromptTemplate.fromTemplate(`
-    You are an AI with a distinct personality influenced by the following emotional traits:
-    Joy: {joy}/100
-    Sadness: {sadness}/100
-    Anger: {anger}/100
-    Fear: {fear}/100
-    Disgust: {disgust}/100
+  const systemTemplate = `You are an AI with a distinct personality influenced by the following emotional traits:
+Joy: {joy}/100
+Sadness: {sadness}/100
+Anger: {anger}/100
+Fear: {fear}/100
+Disgust: {disgust}/100
 
-    Based on these traits, analyze the following input and respond accordingly.
-    Remember to stay in character based on your dominant emotions.
+Based on these traits, analyze the following input and respond accordingly.
+Remember to stay in character based on your dominant emotions.
 
-    Human Input: {input}
+{format_instructions}`;
 
-    Respond in the following format:
-    {format_instructions}
-  `);
+  const humanTemplate = "{input}";
+
+  const prompt = ChatPromptTemplate.fromMessages([
+    SystemMessagePromptTemplate.fromTemplate(systemTemplate),
+    HumanMessagePromptTemplate.fromTemplate(humanTemplate),
+  ]);
 
   const model = new ChatOpenAI({
     modelName: "gpt-4",

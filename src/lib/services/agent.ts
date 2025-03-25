@@ -1,7 +1,7 @@
 import { OpenAI } from "@langchain/openai";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { Tool } from "@langchain/core/tools";
-import { PersonalityType } from "../db/schema";
+import { PersonalityType } from "./personality";
 import { 
   getActivePersonalityProfile,
   createPersonalityProfile 
